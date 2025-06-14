@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "be.florens.eggtab.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "eggtab.refmap.json",
+  "client": [],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+} 

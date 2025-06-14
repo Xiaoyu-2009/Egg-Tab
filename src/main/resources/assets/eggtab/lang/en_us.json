@@ -1,0 +1,7 @@
+{
+  "itemGroup.eggtab.egg_group": "Spawn Eggs",
+  "itemGroup.eggtab.book_group": "Enchanted Books",
+  
+  "config.eggtab.eggs_group": "Enable spawn eggs tab",
+  "config.eggtab.books_group": "Enable enchanted books tab"
+}

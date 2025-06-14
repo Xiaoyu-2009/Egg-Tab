@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+issueTrackerURL="https://github.com/florensie/eggtab-forge/issues"
+
+[[mods]]
+modId="eggtab"
+version="${file.jarVersion}"
+displayName="Egg Tab"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/eggtab-forge"
+logoFile="logo.png"
+authors="Florens Pauwels, Ported to 1.20.1 by Xiaoyu_2009"
+description='''
+Moves all spawn eggs and enchanted books to separate creative tabs.
+'''
+
+[[dependencies.eggtab]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.eggtab]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="CLIENT" 

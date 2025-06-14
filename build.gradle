@@ -1,0 +1,128 @@
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+version = '1.20.1-forge-1.0.0'
+group = 'be.florens.eggtab'
+archivesBaseName = 'eggtab'
+
+// 确保所有任务使用UTF-8编码
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    // 禁用所有编译警告
+    options.compilerArgs += ["-Xlint:none"]
+}
+
+tasks.withType(ProcessResources).configureEach {
+    filteringCharset = 'UTF-8'
+}
+
+java {
+    archivesBaseName = 'eggtab'
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    
+    compileJava {
+        options.compilerArgs << '-Xlint:deprecation'
+        options.deprecation = true
+    }
+}
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+minecraft {
+    // 映射表版本
+    mappings channel: 'official', version: '1.20.1'
+    
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                eggtab {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    mavenLocal()
+    maven { 
+        url = 'https://maven.minecraftforge.net/'
+        name = "Forge"
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin {
+    add sourceSets.main, "eggtab.refmap.json"
+    config "eggtab.mixins.json"
+    
+    debug.verbose = true
+    debug.export = true
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version: forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors: mod_authors, mod_description: mod_description,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+    
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": "eggtab",
+            "Specification-Vendor": "eggtab",
+            "Specification-Version": "1",
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor": "florens, Ported to 1.20.1 by Xiaoyu_2009",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "MixinConfigs": "eggtab.mixins.json"
+        ])
+    }
+    
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    finalizedBy 'reobfJar'
+    
+    // 设置自定义文件名，移除多余的连字符
+    archiveFileName = "eggtab-${version}.jar"
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
